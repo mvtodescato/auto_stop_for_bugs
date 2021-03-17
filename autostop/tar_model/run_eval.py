@@ -99,7 +99,7 @@ def knee_exec(topic,datas):
     df = df.groupby(['dta','rho', 'beta']).mean()
 
     df[['cost', 'recall','loss_er']]
-    df.to_csv(r'/home/mvtodescato/auto_stop_for_bugs/autostop/tar_model/results_csv/knee_exec.csv')
+    df.to_csv(tar_master_dir + '/results_csv/knee_exec.csv')
     print(df)
 
 def scal_exec(topic,datas):
@@ -122,19 +122,19 @@ def scal_exec(topic,datas):
     df = pd.concat(dfs, ignore_index=True)
     df = df.groupby(['dta','spt', 'bnd', 'ita']).mean()
     df[['wss_100', 'loss_er', 'norm_area', 'recall', 'cost', 'num_shown', 'num_docs', 'rels_found', 'num_rels', 'ap', 'NCG@10', 'NCG@100']]
-    df.to_csv(r'/home/mvtodescato/auto_stop_for_bugs/autostop/tar_model/results_csv/scal_exec.csv')
+    df.to_csv(tar_master_dir + 'results_csv/scal_exec.csv')
     print(df)
 
 def autostop_exec(topic,datas):
     dfs = []
     for data in datas:
         for target_recall in [1.0]:
-            for sampler_type in ['HTPowerLawSampler','HHPowerLawSampler','HHAPPriorSampler']:
-                for stop_condition in ['loose']:
+            for sampler_type in ['HTAPPriorSampler','HTUniformSampler','HTPowerLawSampler','HHPowerLawSampler','HHAPPriorSampler']:
+                for stop_condition in ['strict1','loose','strict2']:
                     auto_stop.main(target_recall, sampler_type, stop_condition, topic, data)
     for data in datas:
         for target_recall in [1.0]:
-            for sampler_type in ['HTUniformSampler','HTPowerLawSampler','HHPowerLawSampler','HHAPPriorSampler']:
+            for sampler_type in ['HTAPPriorSampler','HTUniformSampler','HTPowerLawSampler','HHPowerLawSampler','HHAPPriorSampler']:
                 for stop_condition in ['strict1','loose','strict2']:
                     _df = TarEvalResultReader(data_name=data, model_name='autostop-spNone-sr1.0-smp{}-tr{}-sc{}'.format(sampler_type, target_recall, stop_condition), exp_id='1', train_test=data, topic_id=topic, zero="0",rho=0,beta=0, method_name='autostop')
                     _df['dta'] = data
@@ -147,7 +147,7 @@ def autostop_exec(topic,datas):
     df['reliability'] = df.apply(lambda row:1 if row['recall'] >= row['tr'] else 0, axis=1)
     df['re'] = np.abs(df['recall'] - df['tr']) / df['tr']
     df = df.groupby(['dta', 'smp', 'sc', 'tr']).mean()
-    df.to_csv(r'/home/mvtodescato/auto_stop_for_bugs/autostop/tar_model/results_csv/autostop_exec.csv')
+    df.to_csv(tar_master_dir + 'results_csv/autostop_exec.csv')
     print(df)
 
 import knee
