@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 import numpy as np
+import scipy.sparse
 from scipy.sparse import csr_matrix
 from rank_bm25 import BM25Okapi
 from nltk.stem.porter import *
@@ -76,21 +77,21 @@ class Ranker(object):
         #tfidf_vectorizer.fit(corpus_texts)
         #print(tfidf_vectorizer)
         #features = tfidf_vectorizer.transform(texts)
-        matriz = csr_matrix((len(dids),107))
+        #matriz = csr_matrix((len(dids),107))
         #modificar para pegar o nome do tópico aq e buscar diretamente na pasta de dados
-        with open("../../data/" + data_name + "/" + data_name + ".svm.fil", "r") as svm:
-            for line in svm:
-                new_line = line.split()
-                for var in new_line:
-                    if var == new_line[0]:
-                        x = var
-                        continue
-                    n_line = var.split(":")
+        #with open("../../data/" + data_name + "/" + data_name + ".svm.fil", "r") as svm:
+        #    for line in svm:
+        #        new_line = line.split()
+        #        for var in new_line:
+        #            if var == new_line[0]:
+        #                x = var
+        #                continue
+        #            n_line = var.split(":")
                     #print(x)
                     #print(n_line[0])
-                    matriz[int(x),int(n_line[0])-1] = n_line[1]
+        #            matriz[int(x),int(n_line[0])-1] = n_line[1]
                     #print(n_line)
-                
+        matriz = scipy.sparse.load_npz("../../data/" + data_name + "/" + data_name + '.npz')        
         
         #print(matriz)
         #print(type(features))
