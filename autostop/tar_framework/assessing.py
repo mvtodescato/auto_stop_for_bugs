@@ -142,6 +142,21 @@ class Assessor(DataLoader):
         assert len(dids) == len(labels)
         return dids, labels
 
+    def get_training_data2(self,tam):
+        dids = self.get_complete_dids()
+        dids2 = dids[0:tam]
+        labels = [self.did2label[did] for did in dids2]
+        assert len(dids2) == len(labels)
+        return dids2, labels
+
+    def get_training_data3(self, temp_doc_num):
+        asdids = self.get_assessed_dids()
+
+        dids = asdids
+        labels = [self.did2label[did] for did in asdids]
+        assert len(dids) == len(labels)
+        return dids, labels
+
     def update_assess(self, dids):
 
         for did in dids:
