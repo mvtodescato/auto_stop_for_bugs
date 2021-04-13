@@ -7,6 +7,7 @@ The implementation is based on
 import csv
 import math
 import numpy as np
+import random
 from operator import itemgetter
 from autostop.tar_framework.assessing import Assessor
 from autostop.tar_framework.ranking import Ranker
@@ -99,7 +100,10 @@ def scal_method(data_name, topic_set, topic_id,
 
     total_esti_r = 0
     temp_list = []
-
+    tam=int(total * train_percentage)
+    x = random.sample(range(total), tam)
+    y = np.sort(x)
+    z = y.tolist()
     # starting the TAR process
     interaction_file = name_interaction_file(data_name=data_test, model_name=model_name, topic_set=topic_set,
                                              exp_id=random_state, topic_id=topic_id)
@@ -111,7 +115,7 @@ def scal_method(data_name, topic_set, topic_id,
             LOGGER.info('iteration {}, batch_size {}'.format(t, batch_size))
 
             # train
-            train_dids1, train_labels1 = datamanager.get_training_data2(tam=int(total * train_percentage))
+            train_dids1, train_labels1 = datamanager.get_training_data2(z)
             train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
             train_labels = train_labels1 + train_labels2
             train_features1 = ranker.get_feature_by_did(train_dids1)
@@ -203,7 +207,7 @@ def scal_method(data_name, topic_set, topic_id,
         threshold = -1
 
     # rank complete dids
-    train_dids1, train_labels1 = datamanager.get_training_data2(tam=int(total * train_percentage))
+    train_dids1, train_labels1 = datamanager.get_training_data2(z)
     train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
     train_labels = train_labels1 + train_labels2
     train_features1 = ranker.get_feature_by_did(train_dids1)
@@ -245,4 +249,4 @@ def main(sub_percentage, bound_bt, ita, topic,data_train,data_test,train_percent
 
     scal_method(data_name, topic_id, topic_set, query_file, qrel_file, doc_id_file, doc_text_file,sub_percentage,bound_bt,ita,data_test,train_percentage)
 
-main(1.0,30,1.5,'1','neo4j','android',0.6)
+#main(1.0,30,1.5,'1','neo4j','android',0.6)

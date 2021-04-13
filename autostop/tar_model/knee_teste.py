@@ -17,6 +17,7 @@ from autostop.tar_framework.ranking import Ranker
 from autostop.tar_model.utils import *
 from autostop.tar_framework.utils import *
 from scipy.sparse import vstack
+import random
 
 def detect_knee(data, window_size=1, s=10):
     """
@@ -194,7 +195,10 @@ def knee_method(data_name, topic_set, topic_id,
     batch_size = 1
     temp_doc_num = 100
     knee_data = []
-
+    tam=int(total * train_percentage)
+    x = random.sample(range(total), tam)
+    y = np.sort(x)
+    z = y.tolist()
     # starting the TAR process
     interaction_file = name_interaction_file(data_name=data_test, model_name=model_name, topic_set=topic_set,
                                              exp_id=random_state, topic_id=topic_id)
@@ -204,7 +208,7 @@ def knee_method(data_name, topic_set, topic_id,
             t += 1
             LOGGER.info('TAR: iteration={}'.format(t))
             #ponto importante
-            train_dids1, train_labels1 = datamanager.get_training_data2(tam=int(total * train_percentage))
+            train_dids1, train_labels1 = datamanager.get_training_data2(z)
             train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
             train_labels = train_labels1 + train_labels2
             train_features1 = ranker.get_feature_by_did(train_dids1)
@@ -300,4 +304,4 @@ def main(rho,stopping_beta,topic,data_train,data_test,train_percentage):
     knee_method(data_name, topic_id, topic_set,query_file, qrel_file, doc_id_file, doc_text_file,stopping_beta,rho,data_test,train_percentage)
 
 
-main(rho=5,stopping_beta=100,topic='1',data_train='android',data_test='anttlr4',train_percentage=0.6)
+#main(rho=5,stopping_beta=1000,topic='1',data_train='android',data_test='anttlr4',train_percentage=0.6)
