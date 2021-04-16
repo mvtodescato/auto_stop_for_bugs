@@ -42,14 +42,10 @@ def TarEvalResultReader(
                 if 'sb' + str(beta) + '-' in f:
                     md_name = f
 
-        path = retdir + '/' + data_name + '/' + 'tar_run'
-        + '/' + md_name + '/' + exp_id + '/' + zero
-        + '/' + data_name + '.run'
+        path = retdir + '/' + data_name + '/' + 'tar_run'+ '/' + md_name + '/' + exp_id + '/' + zero+ '/' + data_name + '.run'
         print(path)
     else:
-        path = retdir + '/' + data_name + '/' + 'tar_run'
-        + '/' + model_name + '/' + exp_id + '/' + zero
-        + '/' + data_name + '.run'
+        path = retdir + '/' + data_name + '/' + 'tar_run'+ '/' + model_name + '/' + exp_id + '/' + zero+ '/' + data_name + '.run'
     print(path)
     # path2 = '/home/mvtodescato/auto-stop-tar/ret/{}/tar_run/{}/1/0/{}.run'.format(data_name,model_name,data_name)
     # path2 = path2.lstrip("/")
@@ -91,15 +87,18 @@ def TarEvalResultReader(
 
 def knee_exec(topic, datas):
     for data in datas:
-        for rho in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
-            for beta in [100.0]:
+        for rho in [6]:
+            for beta in [1000.0]:
+                if data == 'android':
+                    beta = 100
                 knee.main(rho=rho, stopping_beta=beta, topic=topic, data=data)
     dfs = []
     for data in datas:
-        for rho in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
-            for beta in [100.0]:
-                m_name = 'knee_sb' + str(beta)
-                + '-sp1.0-srNone-rho' + str(rho)
+        for rho in [6]:
+            for beta in [1000.0]:
+                if data == 'android':
+                    beta = 100
+                m_name = 'knee_sb' + str(beta)+ '-sp1.0-srNone-rho' + str(rho)
 
                 # o zero na vdd tem relação com o random state,
                 # se ele for 1 o zero tem q ser 1 tbm
@@ -115,23 +114,22 @@ def knee_exec(topic, datas):
     df = df.groupby(['dta', 'rho', 'beta']).mean()
 
     df[['cost', 'recall', 'loss_er']]
-    df.to_csv(tar_master_dir + '/results_csv/knee_exec.csv')
+    df.to_csv(tar_master_dir + '/results_csv/knee_exec_v1.csv')
     print(df)
 
 
 def scal_exec(topic, datas):
     dfs = []
     for data in datas:
-        for sub_percentage in [0.8, 1.0]:
-            for bound_bt in [30, 50, 70, 90, 110]:
-                for ita in [1.0, 1.05]:
+        for sub_percentage in [1.0]:
+            for bound_bt in [110]:
+                for ita in [1.05]:
                     scal.main(sub_percentage, bound_bt, ita, topic, data)
     for data in datas:
-        for sub_percentage in [0.8, 1.0]:
-            for bound_bt in [30, 50, 70, 90, 110]:
-                for ita in [1.0, 1.05]:
-                    m_name = 'scal-sp1.0-sr1.0-tr1.0-spt{}-bnd{}-mxnmin-bktsamplerel-ita{}'.format(
-                            sub_percentage, bound_bt, ita)
+        for sub_percentage in [1.0]:
+            for bound_bt in [110]:
+                for ita in [1.05]:
+                    m_name = 'scal-sp1.0-sr1.0-tr1.0-spt{}-bnd{}-mxnmin-bktsamplerel-ita{}'.format(sub_percentage, bound_bt, ita)
                     _df = TarEvalResultReader(
                             data_name=data, model_name=m_name, exp_id='1',
                             train_test=data, topic_id=topic, zero='0',
@@ -159,7 +157,7 @@ def scal_exec(topic, datas):
             'NCG@100',
         ]
     ]
-    df.to_csv(tar_master_dir + 'results_csv/scal_exec.csv')
+    df.to_csv(tar_master_dir + '/results_csv/scal_exec_v1.csv')
     print(df)
 
 
@@ -219,10 +217,10 @@ if __name__ == '__main__':
     import scal
     import auto_stop
     topic = '1'
-    datas = ['android', 'neo4j']
+    datas = ['android', 'anttlr4','broadleaf','ceylon','elasticsearch','hazelcast','junit','MapDB','mcMMO','mct','neo4j','netty','orientdb','oryx','titan']
 
-    # knee_exec(topic, datas)
+    knee_exec(topic, datas)
 
-    # scal_exec(topic, datas)
+    #$scal_exec(topic, datas)
 
-    autostop_exec(topic, datas)
+    #autostop_exec(topic, datas)

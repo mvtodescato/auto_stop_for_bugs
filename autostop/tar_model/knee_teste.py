@@ -207,6 +207,7 @@ def knee_method(data_name, topic_set, topic_id,
         while not stopping:
             t += 1
             LOGGER.info('TAR: iteration={}'.format(t))
+            LOGGER.info('Train={}, Teste:{}, % = {}'.format(data_name,data_test,train_percentage))
             #ponto importante
             train_dids1, train_labels1 = datamanager.get_training_data2(z)
             train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
@@ -279,7 +280,8 @@ def knee_method(data_name, topic_set, topic_id,
             if stopping_percentage:
                 if sampled_num >= int(total_num * stopping_percentage):
                     stopping = True
-
+            if sampled_num == total_num:
+                stopping = True
     shown_dids = datamanager2.get_assessed_dids()
     check_func = datamanager2.assess_state_check_func()
     tar_run_file = name_tar_run_file(data_name=data_test, model_name=model_name, topic_set=topic_set,
@@ -304,4 +306,4 @@ def main(rho,stopping_beta,topic,data_train,data_test,train_percentage):
     knee_method(data_name, topic_id, topic_set,query_file, qrel_file, doc_id_file, doc_text_file,stopping_beta,rho,data_test,train_percentage)
 
 
-#main(rho=5,stopping_beta=1000,topic='1',data_train='android',data_test='anttlr4',train_percentage=0.6)
+#main(rho=6,stopping_beta=100,topic='1',data_train='android',data_test='ceylon',train_percentage=0.6)

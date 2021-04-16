@@ -83,13 +83,10 @@ def scal_method(data_name, topic_set, topic_id,
     # sampling a large sample set before the TAR process
     if sub_percentage < 1.0:
         u = int(sub_percentage * total_num)
-        sub_dids = list(np.random.choice(a=complete_dids, size=u, replace=False).flatten())
     elif sub_percentage == 1.0:
         u = total_num
-        sub_dids = complete_dids
     else:
         raise NotImplementedError
-    ranker.set_features_by_name('sub_dids', sub_dids)
 
     # local parameters
     stopping = False
@@ -112,7 +109,7 @@ def scal_method(data_name, topic_set, topic_id,
         while not stopping:
             t += 1
 
-            LOGGER.info('iteration {}, batch_size {}'.format(t, batch_size))
+            LOGGER.info('iteration {}, batch_size {},data_train {},data_test {},percentage {}'.format(t, batch_size,data_name,data_test,train_percentage))
 
             # train
             train_dids1, train_labels1 = datamanager.get_training_data2(z)
@@ -130,8 +127,7 @@ def scal_method(data_name, topic_set, topic_id,
             zipped = sorted(zip(test_dids, scores), key=itemgetter(1), reverse=True)
             ranked_dids, score = zip(*zipped)
 
-            bucketed_dids, sampled_dids, batch_esti_r = sampler.sample(ranked_dids, n, batch_size, did2label)
-
+            bucketed_dids,sampled_dids, batch_esti_r = sampler.sample(ranked_dids, n, batch_size, did2label)
             datamanager2.update_assess(sampled_dids)
 
             # estimating
@@ -249,4 +245,4 @@ def main(sub_percentage, bound_bt, ita, topic,data_train,data_test,train_percent
 
     scal_method(data_name, topic_id, topic_set, query_file, qrel_file, doc_id_file, doc_text_file,sub_percentage,bound_bt,ita,data_test,train_percentage)
 
-#main(1.0,30,1.5,'1','neo4j','android',0.6)
+#main(1.0,110,1.5,'1','android','ceylon',0.1)

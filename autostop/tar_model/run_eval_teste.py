@@ -90,18 +90,22 @@ def knee_exec(topic, datas):
         for data_test in datas:
             if data_train == data_test:
                 continue
-            for rho in [5]:
-                for beta in [100.0]:
-                    for train_percentage in [0.8,0.9,1.0]:
+            for rho in [6]:
+                for beta in [1000.0]:
+                    if data_test == 'android':
+                        beta = 100
+                    for train_percentage in [0.1,0.2,0.3,0.4,0.5,1.0]:
                         knee_teste.main(rho, beta, topic, data_train,data_test,train_percentage)
     dfs = []
     for data_train in datas:
         for data_test in datas:
             if data_train == data_test:
                 continue
-            for rho in [5]:
-                for beta in [100.0]:
-                    for train_percentage in [0.8,0.9,1.0]:
+            for rho in [6]:
+                for beta in [1000.0]:
+                    if data_test == 'android':
+                        beta = 100
+                    for train_percentage in [0.1,0.2,0.3,0.4,0.5,1.0]:
                         m_name = 'knee_sb' + str(beta)+ '-sp1.0-srNone-rho' + str(rho)
                         t_train_percentage = str(train_percentage)
                         # o zero na vdd tem relação com o random state,
@@ -131,18 +135,18 @@ def scal_exec(topic, datas):
             if data_train == data_test:
                 continue
             for sub_percentage in [1.0]:
-                for bound_bt in [30]:
-                    for ita in [1.0]:
-                        for train_percentage in [0.8,0.9,1.0]:
+                for bound_bt in [110]:
+                    for ita in [1.05]:
+                        for train_percentage in [0.1,0.2,0.3,0.4,0.5,1.0]:
                             scal_teste.main(sub_percentage, bound_bt, ita, topic, data_train,data_test,train_percentage)
     for data_train in datas:
         for data_test in datas:
             if data_train == data_test:
                 continue
             for sub_percentage in [1.0]:
-                for bound_bt in [30]:
-                    for ita in [1.0]:
-                        for train_percentage in [0.8,0.9,1.0]:
+                for bound_bt in [110]:
+                    for ita in [1.05]:
+                        for train_percentage in [0.1,0.2,0.3,0.4,0.5,1.0]:
                             m_name = 'scal-sp1.0-sr1.0-tr1.0-spt{}-bnd{}-mxnmin-bktsamplerel-ita{}'.format(
                                     sub_percentage, bound_bt, ita)
                             t_train_percentage = str(train_percentage)
@@ -184,8 +188,8 @@ if __name__ == '__main__':
     import tar_eval
     import scal_teste
     topic = '1'
-    datas = ['android', 'anttlr4']
+    datas = ['android', 'anttlr4','broadleaf','ceylon','elasticsearch','hazelcast','junit','MapDB','mcMMO','mct','neo4j','netty','orientdb','oryx','titan']
 
-    knee_exec(topic, datas)
+    #knee_exec(topic, datas)
 
-    #scal_exec(topic, datas)
+    scal_exec(topic, datas)
