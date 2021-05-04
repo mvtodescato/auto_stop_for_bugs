@@ -141,7 +141,7 @@ def test_detect_knee():
 
 def knee_method(data_name, topic_set, topic_id,
                 query_file, qrel_file, doc_id_file, doc_text_file, # data parameters
-                stopping_beta, rho, data_test, train_percentage, stopping_percentage=None, stopping_recall=None,  # autostop parameters
+                stopping_beta, rho, data_test, train_percentage, stopping_percentage=None, stopping_recall=1.0,  # autostop parameters
                 random_state=0):
     #rho,stopping_beta
     """
@@ -209,7 +209,8 @@ def knee_method(data_name, topic_set, topic_id,
             LOGGER.info('TAR: iteration={}'.format(t))
             LOGGER.info('Train={}, Teste:{}, % = {}'.format(data_name,data_test,train_percentage))
             #ponto importante
-            train_dids1, train_labels1 = datamanager.get_training_data2(z)
+            train_dids1, train_labels1 = datamanager.get_training_data4()
+            print(len(train_dids1))
             train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
             train_labels = train_labels1 + train_labels2
             train_features1 = ranker.get_feature_by_did(train_dids1)
@@ -269,9 +270,9 @@ def knee_method(data_name, topic_set, topic_id,
                 else:
                     rho = float(rho)
 
-                if current_rho > rho:
-                    if sampled_num > stopping_beta:
-                        stopping = True
+                #if current_rho > rho:
+                #    if sampled_num > stopping_beta:
+                #        stopping = True
 
             # debug: stop early
             if stopping_recall:
@@ -306,4 +307,4 @@ def main(rho,stopping_beta,topic,data_train,data_test,train_percentage):
     knee_method(data_name, topic_id, topic_set,query_file, qrel_file, doc_id_file, doc_text_file,stopping_beta,rho,data_test,train_percentage)
 
 
-#main(rho=6,stopping_beta=100,topic='1',data_train='android',data_test='ceylon',train_percentage=0.6)
+main(rho=6,stopping_beta=1000,topic='1',data_train='anttlr4',data_test='hazelcast',train_percentage=0.6)

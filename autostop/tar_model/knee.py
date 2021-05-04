@@ -140,7 +140,7 @@ def test_detect_knee():
 
 def knee_method(data_name, topic_set, topic_id,
                 query_file, qrel_file, doc_id_file, doc_text_file,  # data parameters
-                stopping_beta, rho, stopping_percentage=1.0, stopping_recall=None,  # autostop parameters
+                stopping_beta, rho, stopping_percentage=None, stopping_recall=1.0,  # autostop parameters
                 random_state=0):
     #rho,stopping_beta
     """
@@ -244,9 +244,9 @@ def knee_method(data_name, topic_set, topic_id,
                 else:
                     rho = float(rho)
 
-                if current_rho > rho:
-                    if sampled_num > stopping_beta:
-                        stopping = True
+                #if current_rho > rho:
+                #    if sampled_num > stopping_beta:
+                #        stopping = True
 
             # debug: stop early
             if stopping_recall:
@@ -280,4 +280,4 @@ def main(rho,stopping_beta,topic,data):
     knee_method(data_name, topic_id, topic_set,query_file, qrel_file, doc_id_file, doc_text_file,stopping_beta,rho)
 
 
-main(rho=10/6,stopping_beta=100,topic='1',data='anttlr4')
+main(rho=6,stopping_beta=1000,topic='1',data='mcMMO')

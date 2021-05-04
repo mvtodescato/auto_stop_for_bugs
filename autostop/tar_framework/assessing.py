@@ -157,6 +157,23 @@ class Assessor(DataLoader):
         assert len(dids) == len(labels)
         return dids, labels
 
+    def get_training_data4(self):
+        selec_dids = []
+        count = 0
+        #population = self.get_unassessed_dids()
+        #temp_dids = list(np.random.choice(a=population, size=100, replace=False))
+        alldids = self.get_complete_dids()
+        for did in alldids:
+            if self.did2label[did] == REL:
+                selec_dids.append(did)
+                count = count + 1
+            if count == 10:
+                break
+        labels = [self.did2label[did] for did in selec_dids]
+        selec_dids = selec_dids
+        assert len(selec_dids) == len(labels)
+        return selec_dids, labels
+
     def update_assess(self, dids):
 
         for did in dids:
