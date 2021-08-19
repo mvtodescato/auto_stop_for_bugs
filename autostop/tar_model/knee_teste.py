@@ -18,6 +18,8 @@ from autostop.tar_model.utils import *
 from autostop.tar_framework.utils import *
 from scipy.sparse import vstack
 import random
+import matplotlib.pyplot as plt
+from scipy.integrate import simps
 
 def detect_knee(data, window_size=1, s=10):
     """
@@ -158,6 +160,9 @@ def knee_method(data_name, topic_set, topic_id,
     @return:
     """
     np.random.seed(random_state)
+    list_recall = [0.0, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.018867924528301886, 0.03773584905660377, 0.03773584905660377, 0.05660377358490566, 0.05660377358490566, 0.07547169811320754, 0.07547169811320754, 0.07547169811320754, 0.09433962264150944, 0.16981132075471697, 0.20754716981132076, 0.2830188679245283, 0.33962264150943394, 0.41509433962264153, 0.5094339622641509, 0.6037735849056604, 0.6981132075471698, 0.8113207547169812, 0.8679245283018868, 0.8867924528301887, 0.8867924528301887, 0.8867924528301887, 0.9056603773584906, 0.9245283018867925, 0.9433962264150944, 0.9433962264150944, 0.9811320754716981, 0.9811320754716981, 1.0]
+    list_sample = [0.00042498937526561835, 0.0012749681257968552, 0.0025499362515937103, 0.004249893752656183, 0.006374840628984276, 0.008924776880577986, 0.011899702507437314, 0.01529961750956226, 0.019124521886952826, 0.02337441563960901, 0.02804929876753081, 0.03357416064598385, 0.03994900127496812, 0.04717382065448364, 0.055248618784530384, 0.06417339566510838, 0.0743731406714832, 0.08584785380365491, 0.09859753506162346, 0.11262218444538886, 0.12834679133021676, 0.1457713557161071, 0.16532086697832554, 0.18699532511687209, 0.21121971950701232, 0.23799405014874628, 0.26774330641733957, 0.3004674883127922, 0.33659158521036975, 0.3765405864853379, 0.4207394815129622, 0.4696132596685083, 0.5235869103272418, 0.5830854228644284, 0.6485337866553336, 0.7207819804504887, 0.8002549936251594, 0.8878028049298767, 0.9842753931151721, 1.0]
+
 
     # model named with its configuration
     model_name = 'knee' + '-'
@@ -176,7 +181,7 @@ def knee_method(data_name, topic_set, topic_id,
     doc_text_file2 = os.path.join(PARENT_DIR, 'data', data_test, 'doctexts', '1')
     datamanager2 = Assessor(query_file2, qrel_file2, doc_id_file2, doc_text_file2)
     complete_dids = datamanager.get_complete_dids()
-    total = len(complete_dids)
+    total = datamanager.get_total_rel_num()
     test_dids = datamanager2.get_complete_dids()
     complete_pseudo_dids = datamanager.get_complete_pseudo_dids()
     did2label = datamanager2.get_did2label()
@@ -195,10 +200,29 @@ def knee_method(data_name, topic_set, topic_id,
     batch_size = 1
     temp_doc_num = 100
     knee_data = []
-    tam=int(total * train_percentage)
-    x = random.sample(range(total), tam)
-    y = np.sort(x)
-    z = y.tolist()
+    #tam=int(total * train_percentage)
+    #x = random.sample(range(total), tam)
+    #y = np.sort(x)
+    #z = y.tolist()
+    name_train = ''
+    if train_percentage > 1:
+        num_treino = train_percentage
+        name_train = str(train_percentage) + ' arq. treino'
+    else:
+        if type(train_percentage) == int:
+            num_treino = train_percentage
+            name_train = str(train_percentage) + ' arq. treino'
+        else:
+            num_treino = int(total * train_percentage)
+            name_train = str(100/train_percentage) + '% ' +'arq. treino'
+        print(num_treino)
+        #levar em consideração a quantidade de relevantes total.
+    
+
+
+    recall = []
+    sampled = []
+
     # starting the TAR process
     interaction_file = name_interaction_file(data_name=data_test, model_name=model_name, topic_set=topic_set,
                                              exp_id=random_state, topic_id=topic_id)
@@ -209,7 +233,7 @@ def knee_method(data_name, topic_set, topic_id,
             LOGGER.info('TAR: iteration={}'.format(t))
             LOGGER.info('Train={}, Teste:{}, % = {}'.format(data_name,data_test,train_percentage))
             #ponto importante
-            train_dids1, train_labels1 = datamanager.get_training_data4()
+            train_dids1, train_labels1 = datamanager.get_training_data4(num_treino)
             print(len(train_dids1))
             train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
             train_labels = train_labels1 + train_labels2
@@ -249,7 +273,8 @@ def knee_method(data_name, topic_set, topic_id,
             # debug: writing values
             csvwriter.writerow(
                 (t, batch_size, total_num, sampled_num, total_true_r, running_true_r, ap, running_true_recall))
-
+            recall.append(running_true_recall)
+            sampled.append(sampled_percentage)
             # detect knee
             knee_data.append((sampled_num, running_true_r))
             knee_indice = detect_knee(knee_data)  # x: sampled_percentage, y: running_true_r
@@ -283,10 +308,38 @@ def knee_method(data_name, topic_set, topic_id,
                     stopping = True
             if sampled_num == total_num:
                 stopping = True
+    
+    y_calc = np.array(recall)
+    area = simps(y_calc, dx=5)
+    print("area =", area)
+    plt.plot(sampled, recall, label=data_name + "(treino: " + str(name_train) + ")")
+    plt.suptitle(data_name + "(treino) | " + data_test + "(teste)")
+    plt.title("Recall x Custo")
+    
+    plt.grid(True)
+    plt.xlabel("Custo de rotulação")
+    plt.ylabel("Recall")
+    plt.legend()
+    if train_percentage == 1.0 and type(train_percentage) == float:
+        plt.plot(list_sample, list_recall, label="Original",color='black', linewidth=1.3)
+        plt.suptitle(data_name + "(treino) | " + data_test + "(teste)")
+        plt.title("Recall x Custo")
+        plt.grid(True)
+        plt.xlabel("Custo de rotulação")
+        plt.ylabel("Recall")
+        plt.legend()
+        plt.savefig(interaction_file[0:-4] + '_graph.pdf')
+        plt.clf()
+    
+    
+    
     shown_dids = datamanager2.get_assessed_dids()
     check_func = datamanager2.assess_state_check_func()
     tar_run_file = name_tar_run_file(data_name=data_test, model_name=model_name, topic_set=topic_set,
                                      exp_id=random_state, topic_id=topic_id)
+    with open (tar_run_file[0:-4] + "_area","w") as area_arq:
+        area_arq.write(str(area))
+    
     with open(tar_run_file, 'w', encoding='utf8') as f:
         write_tar_run_file(f=f, topic_id=topic_id, check_func=check_func, shown_dids=shown_dids)
 
@@ -307,4 +360,4 @@ def main(rho,stopping_beta,topic,data_train,data_test,train_percentage):
     knee_method(data_name, topic_id, topic_set,query_file, qrel_file, doc_id_file, doc_text_file,stopping_beta,rho,data_test,train_percentage)
 
 
-main(rho=6,stopping_beta=1000,topic='1',data_train='anttlr4',data_test='hazelcast',train_percentage=0.6)
+#main(rho=6,stopping_beta=1000,topic='1',data_train='android',data_test='mct',train_percentage=1)

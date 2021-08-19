@@ -112,7 +112,7 @@ def scal_method(data_name, topic_set, topic_id,
             LOGGER.info('iteration {}, batch_size {},data_train {},data_test {},percentage {}'.format(t, batch_size,data_name,data_test,train_percentage))
 
             # train
-            train_dids1, train_labels1 = datamanager.get_training_data2(z)
+            train_dids1, train_labels1 = datamanager.get_training_data4()
             train_dids2, train_labels2 = datamanager2.get_training_data(temp_doc_num)
             train_labels = train_labels1 + train_labels2
             train_features1 = ranker.get_feature_by_did(train_dids1)

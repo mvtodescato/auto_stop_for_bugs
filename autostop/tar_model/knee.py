@@ -16,7 +16,7 @@ from autostop.tar_framework.assessing import Assessor
 from autostop.tar_framework.ranking import Ranker
 from autostop.tar_model.utils import *
 from autostop.tar_framework.utils import *
-
+from scipy.integrate import simps
 
 def detect_knee(data, window_size=1, s=10):
     """
@@ -187,7 +187,8 @@ def knee_method(data_name, topic_set, topic_id,
     batch_size = 1
     temp_doc_num = 100
     knee_data = []
-
+    recall = []
+    sampled = []
     # starting the TAR process
     interaction_file = name_interaction_file(data_name=data_name, model_name=model_name, topic_set=topic_set,
                                              exp_id=random_state, topic_id=topic_id)
@@ -223,7 +224,8 @@ def knee_method(data_name, topic_set, topic_id,
             # debug: writing values
             csvwriter.writerow(
                 (t, batch_size, total_num, sampled_num, total_true_r, running_true_r, ap, running_true_recall))
-
+            recall.append(running_true_recall)
+            sampled.append(sampled_percentage)
             # detect knee
             knee_data.append((sampled_num, running_true_r))
             knee_indice = detect_knee(knee_data)  # x: sampled_percentage, y: running_true_r
@@ -264,7 +266,11 @@ def knee_method(data_name, topic_set, topic_id,
         write_tar_run_file(f=f, topic_id=topic_id, check_func=check_func, shown_dids=shown_dids)
 
     LOGGER.info('TAR is finished.')
-
+    print(recall)
+    print(sampled)
+    y_calc = np.array(recall)
+    area = simps(y_calc, dx=5)
+    print("area =", area)
     return
 
 
@@ -280,4 +286,4 @@ def main(rho,stopping_beta,topic,data):
     knee_method(data_name, topic_id, topic_set,query_file, qrel_file, doc_id_file, doc_text_file,stopping_beta,rho)
 
 
-main(rho=6,stopping_beta=1000,topic='1',data='mcMMO')
+main(rho=6,stopping_beta=1000,topic='1',data='anttlr4')

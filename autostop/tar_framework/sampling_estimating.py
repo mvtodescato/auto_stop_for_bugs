@@ -368,7 +368,6 @@ class SCALSampler(object):
         self.buckted_dids = self.buckted_dids.union(set(bucketed_dids))
         for did in bucketed_dids:
             self.buckted_states[did] = True
-
         return bucketed_dids, sampled_dids, batch_esti_r
 
 
